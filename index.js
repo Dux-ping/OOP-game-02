@@ -6,6 +6,8 @@ class Room {
     this._character = "";
     this._roomItem = "";
     this._linkedRoom = {};
+    this._blockLinkedRoom = {};
+    this._items = [];
   }
   key(direction) {
     return this._linkedRoom[direction] !== undefined;
@@ -18,12 +20,34 @@ class Room {
     }
   }
   inforamtion() {
-    return "" + this._name + "" + this._description;
+    let text = "" + this._name + "" + this._description;
+    if (isBlocked("up")) { text += " The exit to the up is blocked."}
+    if (isBlocked("down")) { text += " The exit to the down is blocked."}
+    if (isBlocked("left")) { text += " The exit to the left is blocked."}
+    if (isBlocked("right")) { text += " The exit to the right is blocked."}
+    for (const item of _items) {
+      text += " There is one " + item.name + " in the room." + item.description;
+    }
+    }
   }
+
   linkRoom(direction, space) {
     this._linkedRoom[direction] = space;
   }
+
+  blockLRoom(direction, space) {
+    this._blockLinkedRoom[direction] = space;
+  }
+
+  isBlocked(direction) {
+    return this._blockLinkedRoom[direction] !== undefined;
+  }
+
+  addItem(item) {
+    this._items.push(item);
+  }
 }
+
 // ROOMS DESCRIPTIONS
 let LandingZone = new Room(
   "<h2>Landing Bay</h2><br><h4>BepBop...We are here Padawon!<h4><br>"
@@ -68,10 +92,12 @@ LightSaberRoom.linkRoom("down", KeyRoom);
 PrisonRoom.linkRoom("down", DarkRoom);
 StormTroopersRoom.linkRoom("right", PrisonRoom);
 DarkRoom.linkRoom("left", Hall);
+Hall.blockLRoom("right", DarkRoom);
+LightSaberRoom.addItem(lightsaber);
 
 // NAVIGATION
 function displayAreaInfo(Lev) {
-  document.getElementById("levels").innerHTML = Lev.inforamtion();
+  document.getElementById("levels").innerHTML = Lev.information();
   let up = document.getElementById("up");
   let down = document.getElementById("down");
   let left = document.getElementById("left");
@@ -105,6 +131,10 @@ function displayAreaInfo(Lev) {
 // LETS MOVE FROM ROOM TO ROOM
 let levelArea = LandingZone;
 function moveTo(direction) {
+  if (levelArea.isBlocked(direction)) {
+    alert("It's to dark!I can't go in rigth now.");
+    return;
+  }
   let nextLev = levelArea.toNextZone(direction);
 
   displayAreaInfo(nextLev);
@@ -125,6 +155,7 @@ function moveRight() {
 function moveDown() {
   moveTo("down");
 }
+
 // start
 function startGame() {
   document.getElementById("buttonStart").style.display = "none";
@@ -133,7 +164,7 @@ function startGame() {
 }
 
 // ITEMS
-let lightsaber = new Item("it can be use in many ways.");
+let lightsaber = new Item("Lightsaber", "it can be use in many ways.");
 let keycard = new Item("A keycard");
 class Item {
   constructor(name, description) {
