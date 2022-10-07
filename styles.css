@@ -1,0 +1,29 @@
+body {
+  text-align: center;
+  background-color: #293e48;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#title {
+  text-align: top;
+  padding: 5rem;
+}
+
+.container {
+  background-size: cover;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #1e3689;
+  padding: 15rem;
+  background-image: url("cover.jpg");
+  background-repeat: no-repeat, repeat;
+  color: #ffffff;
+}
+
+h3 {
+  color: wheat;
+}
