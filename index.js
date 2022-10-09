@@ -1,4 +1,4 @@
-// rooms
+//class rooms
 class Room {
   constructor(name, description, character, roomItem) {
     this._name = name;
@@ -10,7 +10,7 @@ class Room {
     this._items = [];
   }
   key(direction) {
-    return this._linkedRoom[direction] !== undefined;
+    return this._linkedRoom[direction];
   }
   toNextZone(direction) {
     if (direction in this._linkedRoom) {
@@ -19,16 +19,34 @@ class Room {
       return this;
     }
   }
-  inforamtion() {
+  information() {
     let text = "" + this._name + "" + this._description;
-    if (isBlocked("up")) { text += " The exit to the up is blocked."}
-    if (isBlocked("down")) { text += " The exit to the down is blocked."}
-    if (isBlocked("left")) { text += " The exit to the left is blocked."}
-    if (isBlocked("right")) { text += " The exit to the right is blocked."}
-    for (const item of _items) {
-      text += " There is one " + item.name + " in the room." + item.description;
+    // if you reach a blocked area, you will receive an alert
+    if (this.isBlocked("up")) {
+      text += " The exit to the up is blocked.";
     }
+    if (this.isBlocked("down")) {
+      text += " The exit to the down is blocked.";
     }
+    if (this.isBlocked("left")) {
+      text += " The exit to the left is blocked.";
+    }
+    if (this.isBlocked("right")) {
+      text += " The exit to the right is blocked.";
+    }
+    // -
+    for (const item of this._items) {
+      text +=
+        " There is one " +
+        "<a href='javascript:pickItem(\"" +
+        item._name +
+        "\");'>" +
+        item._name +
+        "</a>" +
+        " in the room." +
+        item._description;
+    }
+    return text;
   }
 
   linkRoom(direction, space) {
@@ -40,13 +58,62 @@ class Room {
   }
 
   isBlocked(direction) {
-    return this._blockLinkedRoom[direction] !== undefined;
+    return this._blockLinkedRoom[direction];
   }
 
   addItem(item) {
     this._items.push(item);
   }
+  removeItem(item) {
+    const index = this._items.indexOf(item);
+    if (index > -1) {
+      // only splice array when item is found
+      this._items.splice(index, 1); // remove one item only
+    }
+  }
 }
+
+// CHARACTERS
+class Character {
+  constructor(name) {
+    this._name = name;
+  }
+}
+// PLAYER + add items
+class Player {
+  constructor() {
+    this._items = [];
+  }
+  addItem(item) {
+    this._items.push(item);
+  }
+}
+
+// ITEMS
+class Item {
+  constructor(name, description) {
+    this._name = name;
+    this._description = "";
+  }
+}
+let player = new Player();
+let keycard = new Item("Akeycard", "gold");
+let lightsaber = new Item("Lightsaber", "it can be use in many ways.");
+let gameItems = {};
+gameItems["Lightsaber"] = lightsaber;
+gameItems["Akeycard"] = keycard;
+
+// pick up item
+function pickItem(itemName) {
+  let item = gameItems[itemName];
+  levelArea.removeItem(item); // remove item from room
+  player.addItem(item); // add to player
+}
+
+let Boy = new Character("Padawan");
+let Troopers = new Character("StormTroopers");
+let Boss = new Character("Vader");
+let Prisionar = new Character("Lahru");
 
 // ROOMS DESCRIPTIONS
 let LandingZone = new Room(
@@ -69,8 +136,7 @@ StormTroopersRoom._description = "";
 let KeyRoom = new Room("<h2>Armory</h2><br>");
 KeyRoom._description = "<h4>A room with a key hanging from a hanger.</h4>";
 let LightSaberRoom = new Room("<h2>Lightsaber Room</h2>");
-LightSaberRoom._description =
-  "<h4>In the middle of the room lies the lightsaber.</h4>";
+LightSaberRoom._description = "Iron walls";
 let VaderRoom = new Room("<h2>Vader room</h2>");
 VaderRoom._description =
   "<h4>Dark room with red lights and an overwhelming silence.</h4>";
@@ -94,6 +160,7 @@ StormTroopersRoom.linkRoom("right", PrisonRoom);
 DarkRoom.linkRoom("left", Hall);
 Hall.blockLRoom("right", DarkRoom);
 LightSaberRoom.addItem(lightsaber);
+Hall.blockLRoom("up", StormTroopersRoom);
 
 // NAVIGATION
 function displayAreaInfo(Lev) {
@@ -162,27 +229,3 @@ function startGame() {
   document.getElementById("button").style.display = "block";
   displayAreaInfo(levelArea);
 }
-
-// ITEMS
-let lightsaber = new Item("Lightsaber", "it can be use in many ways.");
-let keycard = new Item("A keycard");
-class Item {
-  constructor(name, description) {
-    this._name = name;
-    this._description = "";
-  }
-}
-
-KeyRoom.roomItem = lightsaber;
-
-// CHARACTERS
-class Character {
-  constructor(name) {
-    this._name = name;
-  }
-}
-
-let Boy = new Character("Padawan");
-let Troopers = new Character("StormTroopers");
-let Boss = new Character("Vader");
-let Prisionar = new Character("Lahru");
